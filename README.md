@@ -73,15 +73,17 @@ npm run dev
 See API.md for detailed API documentation.
 
 ## Project Structure
+```plaintext
 src/
 ├── config/         # Configuration files
 ├── controllers/    # Request handlers
 ├── middlewares/    # Custom middlewares
 ├── routes/         # Route definitions
-├── services/       # Business logic
-├── types/          # TypeScript types
-├── utils/          # Utility functions
-└── app.ts         # Express app setup
+├── services/      # Business logic
+├── types/         # TypeScript types
+├── utils/         # Utility functions
+└── app.ts        # Express app setup
+```
 
 ## Scripts
 
