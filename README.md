@@ -43,7 +43,7 @@ Note: Make sure your MySQL server is running before starting the application.
 
 1. Clone the repository
 
-git clone <your-repo-url>
+git clone <https://github.com/MustafaMagdyy/Task-Management-API.git>
 cd task-management-api
 
 2. Install dependencies
