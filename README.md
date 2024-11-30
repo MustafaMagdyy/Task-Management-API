@@ -30,6 +30,7 @@ A RESTful API built with Node.js, Express, TypeScript, and MySQL that allows use
 2. Login to MySQL:
 
 mysql -u root -p
+
 3. Create database:
 CREATE DATABASE task_management;
 
