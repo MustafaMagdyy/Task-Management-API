@@ -32,7 +32,6 @@ const startServer = async () => {
 
 startServer();
 
-// Handle cleanup on server shutdown
 process.on('beforeExit', async () => {
   await prisma.$disconnect();
 });

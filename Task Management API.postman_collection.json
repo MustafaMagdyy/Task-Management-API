@@ -1,0 +1,459 @@
+{
+	"info": {
+		"_postman_id": "fedbc953-4c7c-4392-82d1-1799781f3e80",
+		"name": "Task Management API",
+		"description": "# Task Management API\n\nA RESTful API for managing tasks and user accounts. This API allows users to:\n\n- Create and manage their account\n    \n- Create, read, update, and delete tasks\n    \n- Filter tasks by status\n    \n- Update their profile\n    \n\n## Authentication\n\nThe API uses JWT (JSON Web Token) for authentication. All endpoints except registration and login require a valid JWT token in the Authorization header.\n\n## Base URL\n\n`http://localhost:3000/v1`\n\n## Response Format\n\nAll responses follow the format:\n\n\\`\\`\\`json  \n{  \n\"status\": \"success\" | \"fail\",  \n\"data\": { ... } | { \"message\": \"error message\" }  \n}",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21266696"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Create new user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 201) {\r",
+									"    pm.environment.set(\"jwt\", pm.response.json().data.user.token);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"email\": \"user@example.com\",\r\n\"password\": \"password123\",\r\n\"name\": \"John Doe\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Creates a new user account.\n\nMethod: POST  \nURL: [http://localhost:3000/v1/auth/register](http://localhost:3000/v1/auth/register)\n\nBody:  \n{  \n\"email\": \"[user@example.com](https://mailto:user@example.com)\",  \n\"password\": \"password123\",  \n\"name\": \"John Doe\"  \n}\n\nResponse Success (201 Created):  \n{  \n\"status\": \"success\",  \n\"data\": {  \n\"user\": {  \n\"id\": 1,  \n\"email\": \"[user@example.com](https://mailto:user@example.com)\",  \n\"name\": \"John Doe\",  \n\"createdAt\": \"2024-11-30T...\",  \n\"updatedAt\": \"2024-11-30T...\"  \n},  \n\"token\": \"eyJhbGc...\"  \n}  \n}\n\nResponse Error (400 Bad Request):  \n{  \n\"status\": \"fail\",  \n\"message\": \"Email already exists\"  \n}"
+					},
+					"response": []
+				},
+				{
+					"name": "Login user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 201) {\r",
+									"    pm.environment.set(\"jwt\", pm.response.json().data.token);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"email\": \"user@example.com\",\r\n\"password\": \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticates user and returns JWT token.\n\nMethod: POST  \nURL: http://localhost:3000/v1/auth/login\n\nBody:  \n{  \n\"email\": \"[user@example.com](https://mailto:user@example.com)\",  \n\"password\": \"password123\"  \n}\n\nResponse Success (200 OK):  \n{  \n\"status\": \"success\",  \n\"data\": {  \n\"user\": {  \n\"id\": 1,  \n\"email\": \"[user@example.com](https://mailto:user@example.com)\",  \n\"name\": \"John Doe\"  \n},  \n\"token\": \"eyJhbGc...\"  \n}  \n}\n\nResponse Error (401 Unauthorized):  \n{  \n\"status\": \"fail\",  \n\"message\": \"Invalid email or password\"  \n}"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for user registration and login. No authentication token required for these endpoints.\n\nContains:\n\n- Register: Create a new user account\n    \n- Login: Authenticate existing user and receive JWT token"
+		},
+		{
+			"name": "Tasks",
+			"item": [
+				{
+					"name": "Create task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\r\n{\r\n    \"title\": \"Task Title\",\r\n    \"description\": \"Task description\",\r\n    \"dueDate\": \"2024-12-01T00:00:00.000Z\",\r\n    \"status\": \"PENDING\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"tasks"
+							]
+						},
+						"description": "Creates a new task for authenticated user.\n\nMethod: POST  \nURL: [http://localhost:3000/v1/tasks](http://localhost:3000/v1/tasks)  \nHeaders: Authorization: Bearer {{jwt}}\n\nBody:  \n{  \n\"title\": \"Task Title\",  \n\"description\": \"Task description\",  \n\"dueDate\": \"2024-12-01T00:00:00.000Z\",  \n\"status\": \"PENDING\"  \n}\n\nResponse Success (201 Created):  \n{  \n\"status\": \"success\",  \n\"data\": {  \n\"task\": {  \n\"id\": 1,  \n\"title\": \"Task Title\",  \n\"description\": \"Task description\",  \n\"status\": \"PENDING\",  \n\"dueDate\": \"2024-12-01T00:00:00.000Z\",  \n\"createdAt\": \"2024-11-30T...\",  \n\"updatedAt\": \"2024-11-30T...\",  \n\"userId\": 1  \n}  \n}  \n}\n\nResponse Error (400 Bad Request):  \n{  \n\"status\": \"fail\",  \n\"message\": \"title: Title is required\"  \n}"
+					},
+					"response": []
+				},
+				{
+					"name": "Get all tasks",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/v1/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"tasks"
+							]
+						},
+						"description": "Retrieves all tasks for authenticated user.\n\nMethod: GET  \nURL: [http://localhost:3000/v1/tasks](http://localhost:3000/v1/tasks)  \nHeaders: Authorization: Bearer {{jwt}}  \nQuery Params: status (optional) - PENDING | IN_PROGRESS | COMPLETED\n\nResponse Success (200 OK):  \n{  \n\"status\": \"success\",  \n\"data\": {  \n\"tasks\": \\[  \n{  \n\"id\": 1,  \n\"title\": \"Task Title\",  \n\"description\": \"Task description\",  \n\"status\": \"PENDING\",  \n\"dueDate\": \"2024-12-01T00:00:00.000Z\",  \n\"createdAt\": \"2024-11-30T...\",  \n\"updatedAt\": \"2024-11-30T...\",  \n\"userId\": 1  \n}  \n\\]  \n}  \n}"
+					},
+					"response": []
+				},
+				{
+					"name": "Get single task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/v1/tasks/6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"tasks",
+								"6"
+							]
+						},
+						"description": "Retrieves a specific task by ID.\n\nMethod: GET  \nURL: [http://localhost:3000/v1/tasks/:id](http://localhost:3000/v1/tasks/:id)  \nHeaders: Authorization: Bearer {{jwt}}\n\nResponse Success (200 OK):  \n{  \n\"status\": \"success\",  \n\"data\": {  \n\"task\": {  \n\"id\": 1,  \n\"title\": \"Task Title\",  \n\"description\": \"Task description\",  \n\"status\": \"PENDING\",  \n\"dueDate\": \"2024-12-01T00:00:00.000Z\",  \n\"createdAt\": \"2024-11-30T...\",  \n\"updatedAt\": \"2024-11-30T...\",  \n\"userId\": 1  \n}  \n}  \n}\n\nResponse Error (404 Not Found):  \n{  \n\"status\": \"fail\",  \n\"message\": \"Task not found\"  \n}\n\nResponse Error (403 Forbidden):  \n{  \n\"status\": \"fail\",  \n\"message\": \"Not authorized\"  \n}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Updated Title\",\r\n    \"status\": \"IN_PROGRESS\",\r\n    \"description\": \"Updated description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/tasks/6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"tasks",
+								"6"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Updates an existing task.\n\nMethod: PATCH  \nURL: [http://localhost:3000/v1/tasks/:id](http://localhost:3000/v1/tasks/:id)  \nHeaders: Authorization: Bearer {{jwt}}\n\nBody:  \n{  \n\"title\": \"Updated Title\",  \n\"status\": \"IN_PROGRESS\",  \n\"description\": \"Updated description\"  \n}\n\nResponse Success (200 OK):  \n{  \n\"status\": \"success\",  \n\"data\": {  \n\"task\": {  \n\"id\": 1,  \n\"title\": \"Updated Title\",  \n\"description\": \"Updated description\",  \n\"status\": \"IN_PROGRESS\",  \n\"dueDate\": \"2024-12-01T00:00:00.000Z\",  \n\"createdAt\": \"2024-11-30T...\",  \n\"updatedAt\": \"2024-11-30T...\",  \n\"userId\": 1  \n}  \n}  \n}\n\nResponse Error (404 Not Found):  \n{  \n\"status\": \"fail\",  \n\"message\": \"Task not found\"  \n}"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/v1/tasks/6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"tasks",
+								"6"
+							]
+						},
+						"description": "Deletes a task.\n\nMethod: DELETE  \nURL: [http://localhost:3000/v1/tasks/:id](http://localhost:3000/v1/tasks/:id)  \nHeaders: Authorization: Bearer {{jwt}}\n\nResponse Success (204 No Content)\n\nResponse Error (404 Not Found):  \n{  \n\"status\": \"fail\",  \n\"message\": \"Task not found\"  \n}\n\nResponse Error (403 Forbidden):  \n{  \n\"status\": \"fail\",  \n\"message\": \"Not authorized\"  \n}"
+					},
+					"response": []
+				}
+			],
+			"description": "Task management endpoints. All endpoints in this folder require JWT authentication.\n\nContains:\n\n- Create Task: Create a new task\n    \n- Get All Tasks: Retrieve all tasks for authenticated user\n    \n- Get Single Task: Retrieve specific task by ID\n    \n- Update Task: Modify existing task\n    \n- Delete Task: Remove task\n    \n- Filter Tasks: Get tasks by status"
+		},
+		{
+			"name": "User Profile",
+			"item": [
+				{
+					"name": " Get user profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/v1/users/profile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"users",
+								"profile"
+							]
+						},
+						"description": "Retrieves the authenticated user's profile.\n\nMethod: GET  \nURL: [http://localhost:3000/v1/users/profile](http://localhost:3000/v1/users/profile)  \nHeaders: Authorization: Bearer {{jwt}}\n\nResponse Success (200 OK):  \n{  \n\"status\": \"success\",  \n\"data\": {  \n\"user\": {  \n\"id\": 1,  \n\"email\": \"[user@example.com](https://mailto:user@example.com)\",  \n\"name\": \"John Doe\",  \n\"createdAt\": \"2024-11-30T...\",  \n\"updatedAt\": \"2024-11-30T...\"  \n}  \n}  \n}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update user profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\r\n{\r\n    \"name\": \"New Name\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/users/profile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"users",
+								"profile"
+							]
+						},
+						"description": "Updates the authenticated user's profile information.\n\nMethod: PATCH  \nURL: [http://localhost:3000/v1/users/profile](http://localhost:3000/v1/users/profile)  \nHeaders: Authorization: Bearer {{jwt}}\n\nBody:  \n{  \n\"name\": \"New Name\"  \n}\n\nResponse Success (200 OK):  \n{  \n\"status\": \"success\",  \n\"data\": {  \n\"user\": {  \n\"id\": 1,  \n\"email\": \"[user@example.com](https://mailto:user@example.com)\",  \n\"name\": \"New Name\",  \n\"createdAt\": \"2024-11-30T...\",  \n\"updatedAt\": \"2024-11-30T...\"  \n}  \n}  \n}\n\nResponse Error (400 Bad Request):  \n{  \n\"status\": \"fail\",  \n\"message\": \"name: Must be at least 2 characters\"  \n}"
+					},
+					"response": []
+				}
+			],
+			"description": "User profile management endpoints. All endpoints require JWT authentication.\n\nContains:\n\n- Get Profile: Retrieve current user's profile\n    \n- Update Profile: Modify user's profile information"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "base_url",
+			"value": "https://postman-rest-api-learner.glitch.me/"
+		}
+	]
+}
